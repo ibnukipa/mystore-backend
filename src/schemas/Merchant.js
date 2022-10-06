@@ -1,9 +1,9 @@
 const {GraphQLObjectType, GraphQLList, GraphQLInputObjectType, GraphQLEnumType} = require('graphql')
-const {GraphQLID, GraphQLString, GraphQLNonNull} = require("graphql/type");
+const {GraphQLID, GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql/type");
 const db = require("../database")
 const {Sort} = require('./enums/Sort')
 const {Page} = require('./inputs/PageInput')
-const {MerchantCreate} = require('./inputs/MerchantCreateInput')
+const {MerchantCreateInput, MerchantUpdateInput} = require('./inputs/MerchantInput')
 const getOneFirst = require('../utils/getOneFirst')
 
 const Merchant = new GraphQLObjectType({
@@ -15,6 +15,7 @@ const Merchant = new GraphQLObjectType({
     phone_number: {type: GraphQLString},
     latitude: {type: GraphQLString},
     longitude: {type: GraphQLString},
+    is_active: {type: GraphQLBoolean},
     created_at: {type: GraphQLString},
     updated_at: {type: GraphQLString},
   })
@@ -81,12 +82,22 @@ const MerchantMutations = {
   createMerchant: {
     type: Merchant,
     args: {
-      input: { type: MerchantCreate }
+      input: { type: MerchantCreateInput }
     },
     resolve: (_, { input }) => {
-      return db('merchants').returning(MerchantColumns).insert(input, MerchantColumns).then(getOneFirst)
+      return db('merchants').insert(input, MerchantColumns).then(getOneFirst)
     }
   },
+  updateMerchant: {
+    type: Merchant,
+    args: {
+      id: {type: GraphQLID},
+      input: { type: MerchantUpdateInput }
+    },
+    resolve: (_, { id, input }) => {
+      return db('merchants').where({id}).update(input, MerchantColumns).then(getOneFirst)
+    }
+  }
 }
 
 module.exports = {
