@@ -14,12 +14,12 @@ const MerchantCreateInput = new GraphQLInputObjectType({
 const MerchantUpdateInput = new GraphQLInputObjectType({
   name: 'MerchantUpdateInput',
   fields: () => ({
-    name: {type: new GraphQLNonNull(GraphQLString)},
+    name: {type: GraphQLString},
     phone_number: {type: GraphQLString},
     latitude: {type: GraphQLString},
     longitude: {type: GraphQLString},
     is_active: {type: GraphQLBoolean}
-  })
+  }),
 })
 
-module.exports = { MerchantCreateInput, MerchantUpdateInput }
+module.exports = {MerchantCreateInput, MerchantUpdateInput}

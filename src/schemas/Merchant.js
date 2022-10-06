@@ -64,15 +64,15 @@ const MerchantQueries = {
       }
     },
     resolve: (_, {filter: {page, sorts}}) => {
-      return db('merchants').limit(page.limit || 5).offset(page.offset ?? 0).orderBy(sorts)
+      return db('merchants').where({is_active: true}).limit(page.limit || 5).offset(page.offset ?? 0).orderBy(sorts)
     }
   },
   merchant: {
     type: Merchant,
     args: {
-      id: { type: GraphQLID }
+      id: {type: GraphQLID}
     },
-    resolve: (_, { id }) => {
+    resolve: (_, {id}) => {
       return db('merchants').where({id}).then(getOneFirst)
     }
   }
@@ -82,9 +82,9 @@ const MerchantMutations = {
   createMerchant: {
     type: Merchant,
     args: {
-      input: { type: MerchantCreateInput }
+      input: {type: MerchantCreateInput}
     },
-    resolve: (_, { input }) => {
+    resolve: (_, {input}) => {
       return db('merchants').insert(input, MerchantColumns).then(getOneFirst)
     }
   },
@@ -92,10 +92,32 @@ const MerchantMutations = {
     type: Merchant,
     args: {
       id: {type: GraphQLID},
-      input: { type: MerchantUpdateInput }
+      input: {type: MerchantUpdateInput}
     },
-    resolve: (_, { id, input }) => {
+    resolve: (_, {id, input}) => {
       return db('merchants').where({id}).update(input, MerchantColumns).then(getOneFirst)
+    }
+  },
+  updateMerchants: {
+    type: new GraphQLList(Merchant),
+    args: {
+      ids: {type: new GraphQLList(GraphQLID)},
+      input: {type: MerchantUpdateInput}
+    },
+    resolve: (_, {ids, input}) => {
+      return db('merchants').whereIn('id', ids).update(input, MerchantColumns)
+    }
+  },
+  activatedAllMerchants: {
+    type: new GraphQLList(Merchant),
+    resolve: () => {
+      return db('merchants').update({is_active: true}, MerchantColumns)
+    },
+  },
+  deactivatedAllMerchants: {
+    type: new GraphQLList(Merchant),
+    resolve: () => {
+      return db('merchants').update({is_active: false}, MerchantColumns)
     }
   }
 }

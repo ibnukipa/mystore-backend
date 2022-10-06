@@ -9,4 +9,4 @@ const PageInput = new GraphQLInputObjectType({
   })
 })
 
-module.exports = { Page: PageInput }
+module.exports = {Page: PageInput}
