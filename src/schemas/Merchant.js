@@ -4,6 +4,7 @@ const db = require("../database")
 const {Sort} = require('./enums/Sort')
 const {Page} = require('./inputs/PageInput')
 const {MerchantCreate} = require('./inputs/MerchantCreateInput')
+const getOneFirst = require('../utils/getOneFirst')
 
 const Merchant = new GraphQLObjectType({
   name: 'Merchant',
@@ -65,9 +66,14 @@ const MerchantQueries = {
       return db('merchants').limit(page.limit || 5).offset(page.offset ?? 0).orderBy(sorts)
     }
   },
-  hello: {
-    type: GraphQLString,
-    resolve: () => 'hello'
+  merchant: {
+    type: Merchant,
+    args: {
+      id: { type: GraphQLID }
+    },
+    resolve: (_, { id }) => {
+      return db('merchants').where({id}).then(getOneFirst)
+    }
   }
 }
 
@@ -78,7 +84,7 @@ const MerchantMutations = {
       input: { type: MerchantCreate }
     },
     resolve: (_, { input }) => {
-      return db('merchants').returning(MerchantColumns).insert(input, MerchantColumns).then(data => data[0])
+      return db('merchants').returning(MerchantColumns).insert(input, MerchantColumns).then(getOneFirst)
     }
   },
 }
