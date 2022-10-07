@@ -71,10 +71,11 @@ query {
 
 ```
 mutation {
-     createMerchant(input: {name: "new m1", phone_number: "0851423", latitude: "0", longitude: "0"}) {
+    updateMerchant(id: 14, input: {name: "new m1 updated2", is_active: false}) {
         id
         name
-     }
+        is_active
+    }
 }
 ```
 
@@ -82,10 +83,11 @@ mutation {
 
 ```
 mutation {
-     createMerchant(input: {name: "new m1", phone_number: "0851423", latitude: "0", longitude: "0"}) {
+    updateMerchants(ids: [11, 13], input: {is_active: true}) {
         id
         name
-     }
+        is_active
+    }
 }
 ```
 
@@ -93,10 +95,11 @@ mutation {
 
 ```
 mutation {
-     createMerchant(input: {name: "new m1", phone_number: "0851423", latitude: "0", longitude: "0"}) {
-        id
-        name
-     }
+    activatedAllMerchants {
+        id,
+        name,
+        is_active
+    }
 }
 ```
 
@@ -104,10 +107,11 @@ mutation {
 
 ```
 mutation {
-     createMerchant(input: {name: "new m1", phone_number: "0851423", latitude: "0", longitude: "0"}) {
-        id
-        name
-     }
+    deactivatedAllMerchants {
+        id,
+        name,
+        is_active
+    }
 }
 ```
 
