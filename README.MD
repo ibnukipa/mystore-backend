@@ -46,8 +46,11 @@ mutation {
 ```
 query {
     merchants(filter: {page: {limit: 5, offset: 5}, sorts: [{column: NAME, order: DESC}, {column: ID, order: ASC}]}) {
-        id
-        name
+        totalCount,
+        results{
+            id,
+            name
+        }
     }
 }
 ```
