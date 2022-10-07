@@ -1,9 +1,10 @@
 const {GraphQLObjectType, GraphQLList, GraphQLInputObjectType, GraphQLEnumType} = require('graphql')
-const {GraphQLID, GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql/type");
+const {GraphQLID, GraphQLString, GraphQLNonNull, GraphQLBoolean, GraphQLInt} = require("graphql/type");
 const db = require("../database")
 const {Sort} = require('./enums/Sort')
 const {Page} = require('./inputs/PageInput')
 const {MerchantCreateInput, MerchantUpdateInput} = require('./inputs/MerchantInput')
+const {ListResult} = require('./generic/ListResult')
 const getOneFirst = require('../utils/getOneFirst')
 
 const Merchant = new GraphQLObjectType({
@@ -53,10 +54,12 @@ const MerchantFilterInput = new GraphQLInputObjectType({
   })
 })
 
+const MerchantListResult = ListResult('MerchantListResult', Merchant)
+
 // TODO: change this to use graphql-tools
 const MerchantQueries = {
   merchants: {
-    type: new GraphQLList(Merchant),
+    type: MerchantListResult,
     args: {
       filter: {
         type: MerchantFilterInput,
@@ -64,7 +67,19 @@ const MerchantQueries = {
       }
     },
     resolve: (_, {filter: {page, sorts}}) => {
-      return db('merchants').where({is_active: true}).limit(page.limit || 5).offset(page.offset ?? 0).orderBy(sorts)
+      return new Promise(async (resolve, reject) => {
+        try {
+          const getModel = () => db('merchants').where({is_active: true})
+          const {count} = await getModel().count().then(getOneFirst)
+          const data = await getModel().limit(page.limit || 5).offset(page.offset ?? 0).orderBy(sorts)
+          resolve({
+            totalCount: count,
+            results: data
+          })
+        } catch (e) {
+          reject(e)
+        }
+      })
     }
   },
   merchant: {
