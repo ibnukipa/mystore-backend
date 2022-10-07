@@ -27,7 +27,7 @@ exports.up = function (knex) {
 
     table.boolean('is_active')
       .notNullable()
-      .defaultTo(true)
+      .defaultTo(false)
 
     table.timestamps(true, true);
   })
